@@ -1,0 +1,34 @@
+version: '3.0'
+
+services:
+  etl_job: &base_service_config
+    image: amazon/aws-glue-libs:glue_libs_3.0.0_image_01
+    volumes:
+      - ~/.aws:/home/glue_user/.aws
+      - .:/home/glue_user/workspace
+      - ./jupyter_workspace:/home/glue_user/workspace/jupyter_workspace
+    environment:
+      - AWS_PROFILE=''
+      - AWS_REGION=''
+      - DISABLE_SSL=true
+# Uncomment lines below if AWS access keys must be used
+#    env_file:
+#      - .env.aws-credentials
+    ports:
+      - '4040:4040'
+      - '18080:18080'
+      - '8998:8998'
+      - '8888:8888'
+    command:
+      - spark-submit
+      - main.py
+
+  jupyter_notebook:
+    <<: *base_service_config
+    command:
+      - /home/glue_user/workspace/start_jupyter_notebook.sh
+
+  jupyter_lab:
+    <<: *base_service_config
+    command:
+      - /home/glue_user/jupyter/jupyter_start.sh
